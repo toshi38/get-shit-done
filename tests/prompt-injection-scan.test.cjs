@@ -96,7 +96,9 @@ describe('codebase prompt injection scan', () => {
       if (ALLOWLIST.has(relPath)) continue;
 
       const content = fs.readFileSync(file, 'utf-8');
-      const result = scanForInjection(content, { strict: true });
+      // Agent source files are trusted first-party code, not user input.
+      // Use agentSource:true so the prompt-stuffing threshold is 100K (not 50K).
+      const result = scanForInjection(content, { strict: true, agentSource: true });
 
       if (!result.clean) {
         findings.push({ file: relPath, issues: result.findings });

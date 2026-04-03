@@ -181,8 +181,13 @@ function scanForInjection(text, opts = {}) {
       findings.push('Contains suspicious zero-width or invisible Unicode characters');
     }
 
-    // Check for extremely long strings that could be prompt stuffing
-    if (text.length > 50000) {
+    // Check for extremely long strings that could be prompt stuffing.
+    // Agent source files (agents/*.md, get-shit-done/references/*.md) grow large
+    // legitimately — they use a 100K threshold. User-supplied input (PRD text,
+    // phase names, task descriptions) should never exceed 50K and uses the
+    // tighter threshold. Pass opts.agentSource=true when scanning agent files.
+    const stuffingLimit = opts.agentSource ? 100000 : 50000;
+    if (text.length > stuffingLimit) {
       findings.push(`Suspicious text length: ${text.length} chars (potential prompt stuffing)`);
     }
   }

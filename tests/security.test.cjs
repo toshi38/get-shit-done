@@ -186,11 +186,26 @@ describe('scanForInjection', () => {
     assert.ok(strict.findings.some(f => f.includes('invisible Unicode')));
   });
 
-  test('strict mode detects prompt stuffing', () => {
+  test('strict mode detects prompt stuffing in user input (>50K)', () => {
     const longText = 'A'.repeat(60000);
     const strict = scanForInjection(longText, { strict: true });
     assert.ok(!strict.clean);
     assert.ok(strict.findings.some(f => f.includes('Suspicious text length')));
+  });
+
+  test('strict mode allows agent source files up to 100K', () => {
+    // Agent source files (agents/*.md) grow large legitimately — they use 100K threshold
+    const agentText = 'A'.repeat(60000);
+    const result = scanForInjection(agentText, { strict: true, agentSource: true });
+    // 60K is under the 100K agent threshold — should be clean
+    assert.ok(result.clean);
+  });
+
+  test('strict mode rejects agent source files over 100K', () => {
+    const hugeText = 'A'.repeat(110000);
+    const result = scanForInjection(hugeText, { strict: true, agentSource: true });
+    assert.ok(!result.clean);
+    assert.ok(result.findings.some(f => f.includes('Suspicious text length')));
   });
 });
 
