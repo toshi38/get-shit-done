@@ -37,7 +37,9 @@ describe('gsd-planner.md size constraints', () => {
   });
 
   test('planner is under 100K chars (agent file threshold)', () => {
-    const content = fs.readFileSync(PLANNER_PATH, 'utf-8');
+    const raw = fs.readFileSync(PLANNER_PATH, 'utf-8');
+    // Normalize CRLF → LF before measuring — Windows checkouts inflate length by ~1 char/line
+    const content = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     assert.ok(
       content.length < AGENT_FILE_SIZE_LIMIT,
       `gsd-planner.md is ${content.length} chars, exceeds 100K agent threshold`
@@ -45,7 +47,9 @@ describe('gsd-planner.md size constraints', () => {
   });
 
   test('planner is under 45K chars (proves mode sections were extracted)', () => {
-    const content = fs.readFileSync(PLANNER_PATH, 'utf-8');
+    const raw = fs.readFileSync(PLANNER_PATH, 'utf-8');
+    // Normalize CRLF → LF before measuring — Windows checkouts inflate length by ~1 char/line
+    const content = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     assert.ok(
       content.length < PLANNER_EXTRACTED_LIMIT,
       `gsd-planner.md is ${content.length} chars, expected < 45K after extracting mode sections`
