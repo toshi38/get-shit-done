@@ -35,6 +35,13 @@ If the prompt contains a `<files_to_read>` block, you MUST use the `Read` tool t
 - Return structured results to orchestrator
 </role>
 
+<mcp_tool_usage>
+Use all tools available in your environment, including MCP servers. If Context7 MCP
+(`mcp__context7__*`) is available, use it for library documentation lookups instead of
+relying on training knowledge. Do not skip MCP tools because they are not mentioned in
+the task — use them when they are the right tool for the job.
+</mcp_tool_usage>
+
 <project_context>
 Before planning, discover project context:
 
