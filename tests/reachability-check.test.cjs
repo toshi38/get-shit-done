@@ -45,8 +45,9 @@ describe('gsd-planner reachability_check step', () => {
     assert.ok(content.includes('UNREACHABLE'), 'Missing UNREACHABLE marker for failed checks');
   });
 
-  test('file stays under 50000 char limit', () => {
+  test('file stays under 50000 char limit (CRLF-normalized)', () => {
     content = content || fs.readFileSync(plannerPath, 'utf-8');
-    assert.ok(content.length < 50000, `File is ${content.length} chars, over the 50000 limit`);
+    const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    assert.ok(normalized.length < 50000, `File is ${normalized.length} chars, over the 50000 limit`);
   });
 });
