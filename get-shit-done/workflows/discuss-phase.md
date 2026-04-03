@@ -149,6 +149,11 @@ Exit workflow.
 
 **If `phase_found` is true:** Continue to check_existing.
 
+**Power mode** — If `--power` is present in ARGUMENTS:
+- Skip interactive questioning entirely
+- Read and execute @~/.claude/get-shit-done/workflows/discuss-phase-power.md end-to-end
+- Do not continue with the steps below
+
 **Auto mode** — If `--auto` is present in ARGUMENTS:
 - In `check_existing`: auto-select "Skip" (if context exists) or continue without prompting (if no context/plans)
 - In `present_gray_areas`: auto-select ALL gray areas without asking the user
@@ -1110,6 +1115,21 @@ Route to `confirm_creation` step (existing behavior — show manual next steps).
 </step>
 
 </process>
+
+<power_user_mode>
+When `--power` flag is present in ARGUMENTS, skip interactive questioning and execute the power user workflow.
+
+The power user mode generates ALL questions upfront into machine-readable and human-friendly files, then waits for the user to answer at their own pace before processing all answers in a single pass.
+
+**Full step-by-step instructions:** @~/.claude/get-shit-done/workflows/discuss-phase-power.md
+
+**Summary of flow:**
+1. Run the same phase analysis (gray area identification) as standard mode
+2. Write all questions to `{phase_dir}/{padded_phase}-QUESTIONS.json` and `{phase_dir}/{padded_phase}-QUESTIONS.html`
+3. Notify user with file paths and wait for a "refresh" or "finalize" command
+4. On "refresh": read the JSON, process answered questions, update stats and HTML
+5. On "finalize": read all answers from JSON, generate CONTEXT.md in the standard format
+</power_user_mode>
 
 <success_criteria>
 - Phase validated against roadmap
