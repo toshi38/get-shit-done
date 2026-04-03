@@ -410,6 +410,26 @@ Preview Claude's intended approach before planning.
 /gsd:list-phase-assumptions 2       # See assumptions for phase 2
 ```
 
+### `/gsd:analyze-dependencies`
+
+Analyze phase dependencies and suggest `Depends on` entries for ROADMAP.md before running `/gsd:manager`.
+
+**Prerequisites:** `.planning/ROADMAP.md` exists
+**Produces:** Dependency suggestion table; optionally updates `Depends on` fields in ROADMAP.md with confirmation
+
+**Run this before `/gsd:manager`** when phases have empty `Depends on` fields and you want to avoid merge conflicts from unordered parallel execution.
+
+```bash
+/gsd:analyze-dependencies           # Analyze all phases and suggest dependencies
+```
+
+**Detection methods:**
+- File overlap — phases touching the same files/domains must be ordered
+- Semantic dependencies — a phase that consumes an API or schema built by another phase
+- Data flow — a phase that reads output produced by another phase
+
+---
+
 ### `/gsd:plan-milestone-gaps`
 
 Create phases to close gaps from milestone audit.
