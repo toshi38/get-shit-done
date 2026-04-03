@@ -297,6 +297,8 @@ export type { EventStreamContext } from './event-stream.js';
 export { ContextEngine, PHASE_FILE_MANIFEST } from './context-engine.js';
 export type { FileSpec } from './context-engine.js';
 export { getToolsForPhase, PHASE_AGENT_MAP, PHASE_DEFAULT_TOOLS } from './tool-scoping.js';
+export { checkResearchGate } from './research-gate.js';
+export type { ResearchGateResult } from './research-gate.js';
 export { PromptFactory, extractBlock, extractSteps, PHASE_WORKFLOW_MAP } from './phase-prompt.js';
 export { GSDLogger } from './logger.js';
 export type { LogLevel, LogEntry, GSDLoggerOptions } from './logger.js';
