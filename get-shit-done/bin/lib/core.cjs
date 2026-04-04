@@ -888,7 +888,7 @@ function phaseTokenMatches(dirName, normalized) {
   const token = extractPhaseToken(dirName);
   if (token.toUpperCase() === normalized.toUpperCase()) return true;
   // Strip optional project_code prefix from dir and retry
-  const stripped = dirName.replace(/^[A-Z]{1,6}-(?=\d)/, '');
+  const stripped = dirName.replace(/^[A-Z]{1,6}-(?=\d)/i, '');
   if (stripped !== dirName) {
     const strippedToken = extractPhaseToken(stripped);
     if (strippedToken.toUpperCase() === normalized.toUpperCase()) return true;
