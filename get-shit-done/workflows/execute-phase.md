@@ -511,11 +511,9 @@ Execute each selected wave in sequence. Within a wave: parallel if `PARALLELIZAT
      node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" roadmap update-plan-progress "${PHASE_NUMBER}" "${PLAN_ID}" completed
    done
 
-   # Update STATE.md position to reflect the last completed plan in this wave
-   node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state update-position --phase "${PHASE_NUMBER}" --plan "${LAST_PLAN_ID}"
    ```
 
-   Where `WAVE_PLAN_IDS` is the space-separated list of plan IDs that completed in this wave, and `LAST_PLAN_ID` is the last plan ID in the wave (used to set current position).
+   Where `WAVE_PLAN_IDS` is the space-separated list of plan IDs that completed in this wave.
 
    **If `workflow.use_worktrees` is `false`:** Sequential agents already updated STATE.md and ROADMAP.md themselves — skip this step.
 

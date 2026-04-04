@@ -2034,8 +2034,6 @@ describe('phase resolution uses exact token matching', () => {
   });
 
   test('1009 must NOT match 1009A-feature-consistency when 1009 dir is absent', () => {
-    // With only 1009A on disk, searching for 1009 should return not-found
-    // because 1009 !== 1009A (prefix match bug: '1009A-...' starts with '1009')
     const phasesDir = path.join(tmpDir, '.planning', 'phases');
     fs.mkdirSync(path.join(phasesDir, '1009A-feature-consistency'));
     fs.writeFileSync(path.join(phasesDir, '1009A-feature-consistency', 'PLAN.md'), '# Plan');
@@ -2063,8 +2061,6 @@ describe('phase resolution uses exact token matching', () => {
   });
 
   test('999.6 must NOT match 999.60-episode-processing when 999.6 dir is absent', () => {
-    // With only 999.60 on disk, searching for 999.6 should return not-found
-    // because '999.60-...' starts with '999.6' (prefix match bug)
     const phasesDir = path.join(tmpDir, '.planning', 'phases');
     fs.mkdirSync(path.join(phasesDir, '999.60-episode-processing'));
     fs.writeFileSync(path.join(phasesDir, '999.60-episode-processing', 'PLAN.md'), '# Plan');
@@ -2109,6 +2105,74 @@ describe('phase resolution uses exact token matching', () => {
     const o2 = JSON.parse(r2.output);
     assert.strictEqual(o2.found, true, 'should find phase 2');
     assert.ok(o2.directory.includes('02-implementation'), `should match 02-implementation, got: ${o2.directory}`);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// phase complete — Performance Metrics gate (Step 2 — Gate 4)
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('phase complete updates Performance Metrics', () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = createTempProject();
+  });
+
+  afterEach(() => {
+    cleanup(tmpDir);
+  });
+
+  test('after cmdPhaseComplete: Performance Metrics has updated total plans count', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Project State\n\n**Current Phase:** 2\n**Status:** Executing Phase 2\n**Total Plans in Phase:** 3\n**Current Plan:** 3\n**Completed Phases:** 0\n**Total Phases:** 3\n**Progress:** 0%\n\n## Performance Metrics\n\n**Velocity:**\n- Total plans completed: 0\n- Average duration: N/A\n- Total execution time: 0 hours\n\n**By Phase:**\n\n| Phase | Plans | Total | Avg/Plan |\n|-------|-------|-------|----------|\n\n## Accumulated Context\n`
+    );
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '02-core');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '02-01-PLAN.md'), '# Plan 1\n');
+    fs.writeFileSync(path.join(phaseDir, '02-02-PLAN.md'), '# Plan 2\n');
+    fs.writeFileSync(path.join(phaseDir, '02-03-PLAN.md'), '# Plan 3\n');
+    fs.writeFileSync(path.join(phaseDir, '02-01-SUMMARY.md'), '# Summary\n');
+    fs.writeFileSync(path.join(phaseDir, '02-02-SUMMARY.md'), '# Summary\n');
+    fs.writeFileSync(path.join(phaseDir, '02-03-SUMMARY.md'), '# Summary\n');
+
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n## Phase 2: Core\n\n- [ ] Phase 2: Core Systems\n`
+    );
+
+    const result = runGsdTools('phase complete 2', tmpDir);
+    assert.ok(result.success, `phase complete failed: ${result.error}`);
+
+    const stateAfter = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.ok(stateAfter.match(/Total plans completed:\s*3/), 'Total plans completed should be 3');
+  });
+
+  test('after cmdPhaseComplete: By Phase table has row for completed phase', () => {
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'STATE.md'),
+      `# Project State\n\n**Current Phase:** 1\n**Status:** Executing Phase 1\n**Total Plans in Phase:** 2\n**Current Plan:** 2\n**Completed Phases:** 0\n**Total Phases:** 2\n**Progress:** 0%\n\n## Performance Metrics\n\n**Velocity:**\n- Total plans completed: 0\n- Average duration: N/A\n- Total execution time: 0 hours\n\n**By Phase:**\n\n| Phase | Plans | Total | Avg/Plan |\n|-------|-------|-------|----------|\n\n## Accumulated Context\n`
+    );
+
+    const phaseDir = path.join(tmpDir, '.planning', 'phases', '01-setup');
+    fs.mkdirSync(phaseDir, { recursive: true });
+    fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan\n');
+    fs.writeFileSync(path.join(phaseDir, '01-02-PLAN.md'), '# Plan\n');
+    fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary\n');
+    fs.writeFileSync(path.join(phaseDir, '01-02-SUMMARY.md'), '# Summary\n');
+
+    fs.writeFileSync(
+      path.join(tmpDir, '.planning', 'ROADMAP.md'),
+      `# Roadmap\n\n## Phase 1: Setup\n\n- [ ] Phase 1: Setup\n`
+    );
+
+    const result = runGsdTools('phase complete 1', tmpDir);
+    assert.ok(result.success, `phase complete failed: ${result.error}`);
+
+    const stateAfter = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
+    assert.ok(stateAfter.match(/\|\s*1\s*\|\s*2\s*\|/), 'By Phase table should have row for phase 1 with 2 plans');
   });
 });
 

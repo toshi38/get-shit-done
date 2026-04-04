@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { escapeRegex, loadConfig, normalizePhaseName, comparePhaseNum, findPhaseInternal, getArchivedPhaseDirs, generateSlugInternal, getMilestonePhaseFilter, stripShippedMilestones, extractCurrentMilestone, replaceInCurrentMilestone, toPosixPath, planningDir, withPlanningLock, output, error, readSubdirectories, phaseTokenMatches } = require('./core.cjs');
 const { extractFrontmatter } = require('./frontmatter.cjs');
-const { writeStateMd, stateExtractField, stateReplaceField, stateReplaceFieldWithFallback } = require('./state.cjs');
+const { writeStateMd, stateExtractField, stateReplaceField, stateReplaceFieldWithFallback, updatePerformanceMetricsSection } = require('./state.cjs');
 
 function cmdPhasesList(cwd, options, raw) {
   const phasesDir = path.join(planningDir(cwd), 'phases');
@@ -894,6 +894,9 @@ function cmdPhaseComplete(cwd, phaseNum, raw) {
         }
       }
     }
+
+    // Gate 4: Update Performance Metrics section (#1627)
+    stateContent = updatePerformanceMetricsSection(stateContent, cwd, phaseNum, planCount, summaryCount);
 
     writeStateMd(statePath, stateContent, cwd);
   }

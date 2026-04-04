@@ -47,7 +47,7 @@ function withProjectRoot(cwd, result) {
   return result;
 }
 
-function cmdInitExecutePhase(cwd, phase, raw) {
+function cmdInitExecutePhase(cwd, phase, raw, options = {}) {
   if (!phase) {
     error('phase required for init execute-phase');
   }
@@ -139,10 +139,38 @@ function cmdInitExecutePhase(cwd, phase, raw) {
     config_path: toPosixPath(path.relative(cwd, path.join(planningDir(cwd), 'config.json'))),
   };
 
+  // Optional --validate: run state validation and include warnings (#1627)
+  if (options.validate) {
+    try {
+      const { cmdStateValidate } = require('./state.cjs');
+      // Capture validate output by temporarily redirecting
+      const statePath = path.join(planningDir(cwd), 'STATE.md');
+      if (fs.existsSync(statePath)) {
+        const stateContent = fs.readFileSync(statePath, 'utf-8');
+        const { stateExtractField } = require('./state.cjs');
+        const status = stateExtractField(stateContent, 'Status') || '';
+        result.state_validation_ran = true;
+        // Simple inline validation — check for obvious drift
+        const warnings = [];
+        const phasesPath = planningPaths(cwd).phases;
+        if (phaseInfo && phaseInfo.directory && fs.existsSync(path.join(cwd, phaseInfo.directory))) {
+          const files = fs.readdirSync(path.join(cwd, phaseInfo.directory));
+          const diskPlans = files.filter(f => f.match(/-PLAN\.md$/i)).length;
+          const totalPlansRaw = stateExtractField(stateContent, 'Total Plans in Phase');
+          const totalPlansInPhase = totalPlansRaw ? parseInt(totalPlansRaw, 10) : null;
+          if (totalPlansInPhase !== null && diskPlans !== totalPlansInPhase) {
+            warnings.push(`Plan count mismatch: STATE.md says ${totalPlansInPhase}, disk has ${diskPlans}`);
+          }
+        }
+        result.state_warnings = warnings;
+      }
+    } catch { /* intentionally empty */ }
+  }
+
   output(withProjectRoot(cwd, result), raw);
 }
 
-function cmdInitPlanPhase(cwd, phase, raw) {
+function cmdInitPlanPhase(cwd, phase, raw, options = {}) {
   if (!phase) {
     error('phase required for init plan-phase');
   }
@@ -239,6 +267,25 @@ function cmdInitPlanPhase(cwd, phase, raw) {
       const reviewsFile = files.find(f => f.endsWith('-REVIEWS.md') || f === 'REVIEWS.md');
       if (reviewsFile) {
         result.reviews_path = toPosixPath(path.join(phaseInfo.directory, reviewsFile));
+      }
+    } catch { /* intentionally empty */ }
+  }
+
+  // Optional --validate: run state validation and include warnings (#1627)
+  if (options.validate) {
+    try {
+      const statePath = path.join(planningDir(cwd), 'STATE.md');
+      if (fs.existsSync(statePath)) {
+        const { stateExtractField } = require('./state.cjs');
+        const stateContent = fs.readFileSync(statePath, 'utf-8');
+        const warnings = [];
+        result.state_validation_ran = true;
+        const totalPlansRaw = stateExtractField(stateContent, 'Total Plans in Phase');
+        const totalPlansInPhase = totalPlansRaw ? parseInt(totalPlansRaw, 10) : null;
+        if (totalPlansInPhase !== null && phaseInfo && totalPlansInPhase !== (phaseInfo.plans?.length || 0)) {
+          warnings.push(`Plan count mismatch: STATE.md says ${totalPlansInPhase}, disk has ${phaseInfo.plans?.length || 0}`);
+        }
+        result.state_warnings = warnings;
       }
     } catch { /* intentionally empty */ }
   }

@@ -869,6 +869,16 @@ Options:
 
 If `TEXT_MODE` is true, present as a plain-text numbered list (options already shown in the block above). Otherwise use AskUserQuestion to present the options.
 
+## 13b. Record Planning Completion in STATE.md
+
+After plans pass all gates, record that planning is complete so STATE.md reflects the new phase status:
+
+```bash
+node "$HOME/.claude/get-shit-done/bin/gsd-tools.cjs" state planned-phase --phase "${PHASE_NUMBER}" --name "${PHASE_NAME}" --plans "${PLAN_COUNT}"
+```
+
+This updates STATUS to "Ready to execute", sets the correct plan count, and timestamps Last Activity.
+
 ## 14. Present Final Status
 
 Route to `<offer_next>` OR `auto_advance` depending on flags/config.
