@@ -191,4 +191,34 @@ describe('gsd-read-guard hook', () => {
       'must indicate Read should come before the edit'
     );
   });
+
+  // ─── Build / install integration ───────────────────────────────────────
+
+  test('hook is registered in build-hooks.js HOOKS_TO_COPY', () => {
+    const buildHooksPath = path.join(__dirname, '..', 'scripts', 'build-hooks.js');
+    const content = fs.readFileSync(buildHooksPath, 'utf8');
+    assert.ok(
+      content.includes('gsd-read-guard.js'),
+      'gsd-read-guard.js must be in HOOKS_TO_COPY so it ships in hooks/dist/'
+    );
+  });
+
+  test('hook is registered in install.js uninstall hook list', () => {
+    const installPath = path.join(__dirname, '..', 'bin', 'install.js');
+    const content = fs.readFileSync(installPath, 'utf8');
+    assert.ok(
+      content.includes("'gsd-read-guard.js'"),
+      'gsd-read-guard.js must be in the uninstall gsdHooks list'
+    );
+  });
+
+  test('exits cleanly when tool_input.file_path is non-string', () => {
+    const result = runHook({
+      tool_name: 'Write',
+      tool_input: { file_path: 12345, content: 'data' },
+    });
+    // file_path is a number — || '' yields '' — hook exits silently
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stdout, '');
+  });
 });
