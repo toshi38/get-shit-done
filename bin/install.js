@@ -5908,30 +5908,30 @@ function promptRuntime(callback) {
 
   const runtimeMap = {
     '1': 'claude',
-    '2': 'kilo',
-    '3': 'opencode',
-    '4': 'gemini',
-    '5': 'codex',
-    '6': 'copilot',
-    '7': 'antigravity',
-    '8': 'cursor',
-    '9': 'windsurf',
-    '10': 'augment',
-    '11': 'trae'
+    '2': 'antigravity',
+    '3': 'augment',
+    '4': 'codex',
+    '5': 'copilot',
+    '6': 'cursor',
+    '7': 'gemini',
+    '8': 'kilo',
+    '9': 'opencode',
+    '10': 'trae',
+    '11': 'windsurf'
   };
-  const allRuntimes = ['claude', 'kilo', 'opencode', 'gemini', 'codex', 'copilot', 'antigravity', 'cursor', 'windsurf', 'augment', 'trae'];
+  const allRuntimes = ['claude', 'antigravity', 'augment', 'codex', 'copilot', 'cursor', 'gemini', 'kilo', 'opencode', 'trae', 'windsurf'];
 
   console.log(`  ${yellow}Which runtime(s) would you like to install for?${reset}\n\n  ${cyan}1${reset}) Claude Code  ${dim}(~/.claude)${reset}
-  ${cyan}2${reset}) Kilo         ${dim}(~/.config/kilo)${reset}
-  ${cyan}3${reset}) OpenCode     ${dim}(~/.config/opencode)${reset}
-  ${cyan}4${reset}) Gemini       ${dim}(~/.gemini)${reset}
-  ${cyan}5${reset}) Codex        ${dim}(~/.codex)${reset}
-  ${cyan}6${reset}) Copilot      ${dim}(~/.copilot)${reset}
-  ${cyan}7${reset}) Antigravity  ${dim}(~/.gemini/antigravity)${reset}
-  ${cyan}8${reset}) Cursor       ${dim}(~/.cursor)${reset}
-  ${cyan}9${reset}) Windsurf     ${dim}(~/.windsurf)${reset}
-  ${cyan}10${reset}) Augment      ${dim}(~/.augment)${reset}
-  ${cyan}11${reset}) Trae         ${dim}(~/.trae)${reset}
+  ${cyan}2${reset}) Antigravity  ${dim}(~/.gemini/antigravity)${reset}
+  ${cyan}3${reset}) Augment      ${dim}(~/.augment)${reset}
+  ${cyan}4${reset}) Codex        ${dim}(~/.codex)${reset}
+  ${cyan}5${reset}) Copilot      ${dim}(~/.copilot)${reset}
+  ${cyan}6${reset}) Cursor       ${dim}(~/.cursor)${reset}
+  ${cyan}7${reset}) Gemini       ${dim}(~/.gemini)${reset}
+  ${cyan}8${reset}) Kilo         ${dim}(~/.config/kilo)${reset}
+  ${cyan}9${reset}) OpenCode     ${dim}(~/.config/opencode)${reset}
+  ${cyan}10${reset}) Trae         ${dim}(~/.trae)${reset}
+  ${cyan}11${reset}) Windsurf     ${dim}(~/.windsurf)${reset}
   ${cyan}12${reset}) All
 
   ${dim}Select multiple: 1,2,6 or 1 2 6${reset}
