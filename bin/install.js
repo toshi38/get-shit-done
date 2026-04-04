@@ -1408,10 +1408,14 @@ function copyCommandsAsAugmentSkills(srcDir, skillsDir, prefix, pathPrefix, runt
 }
 
 function convertSlashCommandsToCodexSkillMentions(content) {
+  // Match both legacy colon format (/gsd:xxx) and new dash format (/gsd-xxx)
+  // Use lookbehind to avoid matching file paths like bin/gsd-tools.cjs
   let converted = content.replace(/\/gsd:([a-z0-9-]+)/gi, (_, commandName) => {
     return `$gsd-${String(commandName).toLowerCase()}`;
   });
-  converted = converted.replace(/\/gsd-help\b/g, '$gsd-help');
+  converted = converted.replace(/(?<=^|[\s`"'(|])\/gsd-([a-z][a-z0-9-]*)/gim, (_, commandName) => {
+    return `$gsd-${String(commandName).toLowerCase()}`;
+  });
   return converted;
 }
 
@@ -4912,7 +4916,7 @@ function reportLocalPatches(configDir, runtime = 'claude') {
         ? '$gsd-reapply-patches'
         : runtime === 'cursor'
           ? 'gsd-reapply-patches (mention the skill name)'
-          : '/gsd:reapply-patches';
+          : '/gsd-reapply-patches';
     console.log('');
     console.log('  ' + yellow + 'Local patches detected' + reset + ' (from v' + meta.from_version + '):');
     for (const f of meta.files) {
@@ -5625,7 +5629,7 @@ function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallS
   if (runtime === 'windsurf') program = 'Windsurf';
   if (runtime === 'augment') program = 'Augment';
 
-  let command = '/gsd:new-project';
+  let command = '/gsd-new-project';
   if (runtime === 'opencode') command = '/gsd-new-project';
   if (runtime === 'kilo') command = '/gsd-new-project';
   if (runtime === 'codex') command = '$gsd-new-project';
